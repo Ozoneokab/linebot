@@ -1,8 +1,8 @@
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "bot.db")import sqlite3
+import sqlite3
 import os
 from datetime import datetime
 
-DB_PATH = os.path.expanduser("~/linebot/bot.db")
+DB_PATH = "/tmp/bot.db"
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
@@ -12,8 +12,6 @@ def get_connection():
 def init_db():
     conn = get_connection()
     c = conn.cursor()
-
-    # ตารางเก็บข้อมูลสมาชิกและระดับผู้ดูแล
     c.execute('''CREATE TABLE IF NOT EXISTS users (
         user_id TEXT PRIMARY KEY,
         display_name TEXT,
@@ -24,8 +22,6 @@ def init_db():
         created_at TEXT,
         updated_at TEXT
     )''')
-
-    # ตารางเก็บประวัติการกระทำผิด
     c.execute('''CREATE TABLE IF NOT EXISTS violations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id TEXT,
@@ -35,8 +31,6 @@ def init_db():
         action_taken TEXT,
         created_at TEXT
     )''')
-
-    # ตารางเก็บ log การทำงานของบอท
     c.execute('''CREATE TABLE IF NOT EXISTS bot_logs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         event_type TEXT,
@@ -45,12 +39,8 @@ def init_db():
         detail TEXT,
         created_at TEXT
     )''')
-
     conn.commit()
     conn.close()
-    print("Database initialized successfully.")
-
-# ── ฟังก์ชัน Blacklist ──────────────────────────
 
 def add_to_blacklist(user_id, reason=""):
     conn = get_connection()
@@ -76,12 +66,9 @@ def remove_from_blacklist(user_id):
     conn = get_connection()
     c = conn.cursor()
     now = datetime.now().isoformat()
-    c.execute("UPDATE users SET is_blacklisted=0, blacklist_reason=NULL, updated_at=? WHERE user_id=?",
-              (now, user_id))
+    c.execute("UPDATE users SET is_blacklisted=0, blacklist_reason=NULL, updated_at=? WHERE user_id=?", (now, user_id))
     conn.commit()
     conn.close()
-
-# ── ฟังก์ชัน Warn ───────────────────────────────
 
 def add_warn(user_id):
     conn = get_connection()
@@ -106,8 +93,6 @@ def reset_warn(user_id):
     conn.commit()
     conn.close()
 
-# ── ฟังก์ชัน Role ───────────────────────────────
-
 def set_role(user_id, role):
     conn = get_connection()
     c = conn.cursor()
@@ -127,8 +112,6 @@ def get_role(user_id):
     conn.close()
     return row["role"] if row else "member"
 
-# ── ฟังก์ชัน Log ────────────────────────────────
-
 def log_violation(user_id, group_id, violation_type, detail, action_taken):
     conn = get_connection()
     c = conn.cursor()
@@ -138,6 +121,3 @@ def log_violation(user_id, group_id, violation_type, detail, action_taken):
               (user_id, group_id, violation_type, detail, action_taken, now))
     conn.commit()
     conn.close()
-
-if __name__ == "__main__":
-    init_db()
