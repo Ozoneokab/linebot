@@ -2,7 +2,8 @@ import sqlite3
 import os
 from datetime import datetime
 
-DB_PATH = "/tmp/bot.db"
+# เปลี่ยนจาก /tmp มาใช้โฟลเดอร์ปัจจุบันแทน
+DB_PATH = os.path.join(os.getcwd(), "bot.db")
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
@@ -15,7 +16,7 @@ def init_db():
     c.execute('''CREATE TABLE IF NOT EXISTS users (
         user_id TEXT PRIMARY KEY,
         display_name TEXT,
-        role TEXT DEFAULT 'member',
+        role TEXT DEFAULT "member",
         warn_count INTEGER DEFAULT 0,
         is_blacklisted INTEGER DEFAULT 0,
         blacklist_reason TEXT,
@@ -31,14 +32,6 @@ def init_db():
         action_taken TEXT,
         created_at TEXT
     )''')
-    c.execute('''CREATE TABLE IF NOT EXISTS bot_logs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        event_type TEXT,
-        user_id TEXT,
-        group_id TEXT,
-        detail TEXT,
-        created_at TEXT
-    )''')
     conn.commit()
     conn.close()
 
@@ -46,11 +39,7 @@ def add_to_blacklist(user_id, reason=""):
     conn = get_connection()
     c = conn.cursor()
     now = datetime.now().isoformat()
-    c.execute('''INSERT INTO users (user_id, is_blacklisted, blacklist_reason, created_at, updated_at)
-                 VALUES (?, 1, ?, ?, ?)
-                 ON CONFLICT(user_id) DO UPDATE SET
-                 is_blacklisted=1, blacklist_reason=?, updated_at=?''',
-              (user_id, reason, now, now, reason, now))
+    c.execute('INSERT INTO users (user_id, is_blacklisted, blacklist_reason, created_at, updated_at) VALUES (?, 1, ?, ?, ?) ON CONFLICT(user_id) DO UPDATE SET is_blacklisted=1, blacklist_reason=?, updated_at=?', (user_id, reason, now, now, reason, now))
     conn.commit()
     conn.close()
 
@@ -74,33 +63,18 @@ def add_warn(user_id):
     conn = get_connection()
     c = conn.cursor()
     now = datetime.now().isoformat()
-    c.execute('''INSERT INTO users (user_id, warn_count, created_at, updated_at)
-                 VALUES (?, 1, ?, ?)
-                 ON CONFLICT(user_id) DO UPDATE SET
-                 warn_count=warn_count+1, updated_at=?''',
-              (user_id, now, now, now))
+    c.execute('INSERT INTO users (user_id, warn_count, created_at, updated_at) VALUES (?, 1, ?, ?) ON CONFLICT(user_id) DO UPDATE SET warn_count=warn_count+1, updated_at=?', (user_id, now, now, now))
     c.execute("SELECT warn_count FROM users WHERE user_id=?", (user_id,))
     row = c.fetchone()
     conn.commit()
     conn.close()
     return row["warn_count"] if row else 1
 
-def reset_warn(user_id):
-    conn = get_connection()
-    c = conn.cursor()
-    now = datetime.now().isoformat()
-    c.execute("UPDATE users SET warn_count=0, updated_at=? WHERE user_id=?", (now, user_id))
-    conn.commit()
-    conn.close()
-
 def set_role(user_id, role):
     conn = get_connection()
     c = conn.cursor()
     now = datetime.now().isoformat()
-    c.execute('''INSERT INTO users (user_id, role, created_at, updated_at)
-                 VALUES (?, ?, ?, ?)
-                 ON CONFLICT(user_id) DO UPDATE SET role=?, updated_at=?''',
-              (user_id, role, now, now, role, now))
+    c.execute('INSERT INTO users (user_id, role, created_at, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(user_id) DO UPDATE SET role=?, updated_at=?', (user_id, role, now, now, role, now))
     conn.commit()
     conn.close()
 
@@ -116,8 +90,6 @@ def log_violation(user_id, group_id, violation_type, detail, action_taken):
     conn = get_connection()
     c = conn.cursor()
     now = datetime.now().isoformat()
-    c.execute('''INSERT INTO violations (user_id, group_id, violation_type, detail, action_taken, created_at)
-                 VALUES (?, ?, ?, ?, ?, ?)''',
-              (user_id, group_id, violation_type, detail, action_taken, now))
+    c.execute('INSERT INTO violations (user_id, group_id, violation_type, detail, action_taken, created_at) VALUES (?, ?, ?, ?, ?, ?)', (user_id, group_id, violation_type, detail, action_taken, now))
     conn.commit()
     conn.close()

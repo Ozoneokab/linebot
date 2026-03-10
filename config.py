@@ -1,40 +1,13 @@
 import os
-
-# ==========================================
-# ตั้งค่าหลักของบอท (ใส่ค่าจริงตอน deploy)
-# ==========================================
-CHANNEL_ACCESS_TOKEN = os.getenv("CHANNEL_ACCESS_TOKEN", "ใส่ token ของคุณที่นี่")
-CHANNEL_SECRET = os.getenv("CHANNEL_SECRET", "ใส่ secret ของคุณที่นี่")
-
-# ==========================================
-# ระบบลำดับชั้นแอดมิน
-# ==========================================
-SUPER_ADMINS = []   # LINE userId ของเจ้าของบอท
-ADMINS = []         # LINE userId ของรองแอดมิน
-MODERATORS = []     # LINE userId ของผู้ช่วยดูแล
-
-# ==========================================
-# ตั้งค่า Anti-Spam
-# ==========================================
-MAX_MESSAGES_PER_10SEC = 5      # ส่งได้สูงสุดกี่ข้อความใน 10 วินาที
-DUPLICATE_MSG_THRESHOLD = 3     # ข้อความซ้ำกี่ครั้งถือว่า spam
-WARN_BEFORE_KICK = 3            # warn กี่ครั้งก่อน kick
-
-# ==========================================
-# คำและ pattern ที่ห้ามส่ง
-# ==========================================
-BANNED_PATTERNS = [
-    r"https?://",           # ลิงก์ทั่วไป
-    r"line\.me/ti/g/",      # ลิงก์เชิญกลุ่ม LINE
-    r"[^\x00-\x7F]{50,}",  # ข้อความยาวที่อาจเป็น QR code
-]
-
-BANNED_WORDS = [
-    # เพิ่มคำที่ต้องการบล็อกที่นี่
-]
-
-# ==========================================
-# ตั้งค่า War Mode
-# ==========================================
+CHANNEL_ACCESS_TOKEN = os.getenv("k+ssxzPg5ZV6ej3BQmRkngXs65BD0gI9jBe+CdXQP0gGLQk9cQIVBQGYpcB319NTdeP/p6NY+yyFn5S8EGwtIisxn9PQ33FtLwKJrEqiZsAOQiSA6P1vez275YCdbThdi83auI1RaBlV737k0tP48QdB04t89/1O/w1cDnyilFU=", "")
+CHANNEL_SECRET = os.getenv("1362d112e4d04c9038ff94cd9154173e", "")
+SUPER_ADMINS = ["Ub05c4d3cf85d9149e63eb3e39ca0f76d"] 
+ADMINS = []
+MODERATORS = []
+MAX_MESSAGES_PER_10SEC = 5
+DUPLICATE_MSG_THRESHOLD = 3
+WARN_BEFORE_KICK = 3
+BANNED_PATTERNS = [r"https?://", r"line\.me/ti/g/"]
+BANNED_WORDS = []
 WAR_MODE_ENABLED = True
-BOT_DETECTION_THRESHOLD = 10    # ข้อความกี่ข้อความใน 5 วินาที ถือว่าเป็นบอท
+BOT_DETECTION_THRESHOLD = 10
